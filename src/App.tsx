@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild-wasm'
 import './App.css';
 import { useState  , useEffect , useRef} from 'react';
+import { unpkgPathPlugin } from './Plugins/unpakg-path-plugin';
 
 function App() {
 const ref = useRef<any>();
@@ -23,9 +24,11 @@ const onClick = async () => {
     if(!ref.current){
        return;
     }
-   const result = await ref.current.transform(input , {
-    loader: 'jsx',
-    target: 'es2015'
+   const result = await ref.current.build({
+        entryPoints: ['index.js'],
+        bundle:true,
+        write: false,
+        plugin: [unpkgPathPlugin()]
    });
    setCode(result.code);
 };

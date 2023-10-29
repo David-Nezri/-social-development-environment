@@ -1,49 +1,54 @@
-import * as esbuild from 'esbuild-wasm'
-import './App.css';
-import { useState  , useEffect , useRef} from 'react';
+import * as esbuild from 'esbuild-wasm';
+import { useState, useEffect, useRef } from 'react';
 import { unpkgPathPlugin } from './Plugins/unpakg-path-plugin';
 
-function App() {
-const ref = useRef<any>();
-const [input , setInput] = useState('');
-const [code , setCode] = useState('');
+const App = () => {
+  const ref = useRef<any>();
+  const [input, setInput] = useState('');
+  const [code, setCode] = useState('');
 
-const startService = async () => {
-      ref.current = await esbuild.startService({
-        worker:true , 
-        wasmURL: '/esbuild.wasm'
-      });
-     
-};
+  const startService = async () => {
+    ref.current = await esbuild.startService({
+      worker: true,
+      wasmURL: '/esbuild.wasm',
+    });
+  };
+  useEffect(() => {
+    startService();
+  }, []);
 
-useEffect(() =>{
- startService();
-},[])
-
-const onClick = async () => {
-    if(!ref.current){
-       return;
+  const onClick = async () => {
+    if (!ref.current) {
+      return;
     }
-   const result = await ref.current.build({
-        entryPoints: ['index.js'],
-        bundle:true,
-        write: false,
-        plugin: [unpkgPathPlugin()]
-   });
-   setCode(result.code);
-};
+
+    const result = await ref.current.build({
+      entryPoints: ['index.js'],
+      bundle: true,
+      write: false,
+      plugins: [unpkgPathPlugin()],
+    });
+
+    // console.log(result);
+
+    setCode(result.outputFiles[0].text);
+  };
 
   return (
-    <div className="App">
-       <div>
-        <textarea onChange={(event) => setInput(event.target.value)}></textarea>
-        <div>
-            <button onClick={onClick}>Submit</button>
-        </div>
-        <pre>{code}</pre>
-       </div>
+    <div>
+      <textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      ></textarea>
+      <div>
+        <button onClick={onClick}>Submit</button>
+      </div>
+      <pre>{code}</pre>
     </div>
   );
-}
+};
 
 export default App;
+
+
+
